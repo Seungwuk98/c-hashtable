@@ -11,7 +11,7 @@ set(HASH_TABLE_LIBRARY hashtable)
 include(CTest)
 enable_testing()
 
-add_library(${HASH_TABLE_LIBRARY} STATIC hashtable.c)
+add_library(${HASH_TABLE_LIBRARY} STATIC hashtable.c hashfunction.c)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

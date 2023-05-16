@@ -40,7 +40,8 @@ typedef struct _hashitem {
     hashvalue value;
 } hashitem;
 
-uint64_t hash_function(hashable *item);
+uint64_t int_hash(uint64_t key);
+uint64_t char_pointer_hash(const char * key);
 uint16_t hash_value_size(valuetype type);
 uint16_t hash_key_size(valuetype type);
 
@@ -52,6 +53,28 @@ int is_same_key_hashable(hashable *A, hashable *B);
 
 int get_item_hashtable(hashtable *ht, hashable *key, hashitem *ret);
 int set_item_hashtable(hashtable *ht, hashable *key, hashitem *item);
+
+int get_by_chars(hashtable *ht, const char *key, hashvalue *ret);
+int get_by_uint8(hashtable *ht, uint8_t key, hashvalue *ret);
+int get_by_int8(hashtable *ht, int8_t key, hashvalue *ret);
+int get_by_uint16(hashtable *ht, uint16_t key, hashvalue *ret);
+int get_by_int16(hashtable *ht, int16_t key, hashvalue *ret);
+int get_by_uint32(hashtable *ht, uint32_t key, hashvalue *ret);
+int get_by_int32(hashtable *ht, int32_t key, hashvalue *ret);
+int get_by_uint64(hashtable *ht, uint64_t key, hashvalue *ret);
+int get_by_int64(hashtable *ht, int64_t key, hashvalue *ret);
+int set_by_chars(hashtable *ht, const char *key, hashvalue *item);
+int set_by_uint8(hashtable *ht, uint8_t key, hashvalue *item);
+int set_by_int8(hashtable *ht, int8_t key, hashvalue *item);
+int set_by_uint16(hashtable *ht, uint16_t key, hashvalue *item);
+int set_by_int16(hashtable *ht, int16_t key, hashvalue *item);
+int set_by_uint32(hashtable *ht, uint32_t key, hashvalue *item);
+int set_by_int32(hashtable *ht, int32_t key, hashvalue *item);
+int set_by_uint64(hashtable *ht, uint64_t key, hashvalue *item);
+int set_by_int64(hashtable *ht, int64_t key, hashvalue *item);
+
+
+
 
 int size_hashtable(hashtable *ht);
 
