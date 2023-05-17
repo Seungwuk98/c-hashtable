@@ -11,7 +11,7 @@ set(HASH_TABLE_LIBRARY hashtable)
 include(CTest)
 enable_testing()
 
-add_library(${HASH_TABLE_LIBRARY} STATIC hashtable.c hashfunction.c)
+add_library(${HASH_TABLE_LIBRARY} STATIC hashtable.c hashfunction.c jsonprint.c)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
@@ -25,7 +25,7 @@ include(FetchContent)
 FetchContent_Declare(
     vector
     GIT_REPOSITORY https://github.com/Seungwuk98/c-vector
-    GIT_TAG v0.1.0
+    GIT_TAG v0.1.3
     GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(vector)
 

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <string.h>
+#include <stdlib.h>
 #define true 1
 #define false 0
 
@@ -23,7 +24,7 @@ void __set_hash_key_size_table() {
     HASH_KEY_SIZE_TABLE[UINT32]         = sizeof(uint32_t);     
     HASH_KEY_SIZE_TABLE[INT64]          = sizeof(int64_t);     
     HASH_KEY_SIZE_TABLE[UINT64]         = sizeof(uint64_t);     
-    HASH_KEY_SIZE_TABLE[CHAR_POINTER]   = sizeof(char *);   
+    HASH_KEY_SIZE_TABLE[CHAR_POINTER]   = sizeof(char **);   
     HASH_KEY_SIZE_TABLE[STRING]         = sizeof(NULL); // not yet          
 }
 
@@ -37,7 +38,7 @@ void __set_hash_value_size_table() {
     HASH_VALUE_SIZE_TABLE[UINT32]       = sizeof(uint32_t);
     HASH_VALUE_SIZE_TABLE[INT64]        = sizeof(int64_t);
     HASH_VALUE_SIZE_TABLE[UINT64]       = sizeof(uint64_t);
-    HASH_VALUE_SIZE_TABLE[CHAR_POINTER] = sizeof(char *);
+    HASH_VALUE_SIZE_TABLE[CHAR_POINTER] = sizeof(char **);
     HASH_VALUE_SIZE_TABLE[STRING]       = sizeof(NULL); // NOT YET
     HASH_VALUE_SIZE_TABLE[VECTOR]       = sizeof(vector);
     HASH_VALUE_SIZE_TABLE[HASH_TABLE]   = sizeof(hashtable);
@@ -78,14 +79,16 @@ int close_hashitem(hashitem *item) {
     case UINT32:
     case INT64:
     case UINT64:
+        break;
     case CHAR_POINTER:
-        free(item->key.key);
+        free(*(char **)item->key.key);
         break;
     default:
         fprintf(stderr, "Undefined Type");
         exit(1);
         break;
     }
+    free(item->key.key);
 
     switch (item->value.type)
     {
@@ -103,8 +106,9 @@ int close_hashitem(hashitem *item) {
     case UINT32:
     case INT64:
     case UINT64:
+        break;
     case CHAR_POINTER:
-        free(item->value.value);
+        free(*(char **)item->value.value);
         break;
     
     case VECTOR:
@@ -120,6 +124,7 @@ int close_hashitem(hashitem *item) {
         exit(1);
         break;
     }
+    free(item->value.value);
 }
 
 void close_hashtable(hashtable *ht) {
@@ -194,7 +199,7 @@ uint64_t get_hash(hashable *key) {
         return int_hash(*(uint64_t *)key->key);
     
     case CHAR_POINTER:
-        return char_pointer_hash((char *)key->key);
+        return char_pointer_hash(*(char **)key->key);
 
     default:
         fprintf(stderr, "un hashable error");
@@ -205,7 +210,7 @@ uint64_t get_hash(hashable *key) {
 
 
 int get_item_hashtable(hashtable *ht, hashable *key, hashitem *ret) {
-    uint64_t hash_value = get_hash(ht);
+    uint64_t hash_value = get_hash(key);
     int idx = hash_value % ht->_cap;
     vector *chain = ht->_table + idx;
     for (int i=0; i<size_vector(chain); ++i) {
@@ -220,19 +225,116 @@ int get_item_hashtable(hashtable *ht, hashable *key, hashitem *ret) {
 }
 
 int set_item_hashtable(hashtable *ht, hashable *key, hashitem *item) {
-    uint64_t hash_value = get_hash(ht);
+    uint64_t hash_value = get_hash(key);
     int idx = hash_value % ht->_cap;
     vector *chain = ht->_table + idx;
     for (int i=0; i<size_vector(chain); ++i) {
         hashitem hi;
         get_vector(chain, i, &hi);
-        if (is_same_key_hashable(key, &hi.key)) 
-            return 0;
+        if (is_same_key_hashable(key, &hi.key)) {
+            set_vector(chain, i, (void *)item);
+            return 1;
+        } 
     }
     push_back_vector(chain, (void *)item);
     ht->_size += 1;
+    return 0;
 }
 
+void *copy_data(void *value, valuetype type) {
+    void *ret = malloc(hash_value_size(type));
+    switch (type)
+    {
+    case STRING:
+        // TODO
+        fprintf(stderr, "Not yet string");
+        exit(1);
+        break;
+
+    case INT8:
+    case UINT8:
+    case INT16:
+    case UINT16:
+    case INT32:
+    case UINT32:
+    case INT64:
+    case UINT64:
+        memcpy(ret, value, hash_value_size(type));
+        break;
+    case CHAR_POINTER:
+        *(char **)ret = (char *)malloc(sizeof(char) * strlen(*(char **)value));
+        strcpy(*(char **)ret, *(char **)value);
+        break;
+    
+    case VECTOR:
+        copy_vector((vector *)ret, (vector *)value);
+        break;
+    
+    case HASH_TABLE:
+        copy_hashtable((hashtable *)ret, (hashtable *)value);
+        break;
+
+    default:
+        fprintf(stderr, "Undefined Type");
+        exit(1);
+        break;
+    }
+    return ret;
+}
+
+int set_item_by_key_value(hashtable *ht, void * key, valuetype key_type, void * value, valuetype value_type) {
+    hashable key_hashable;
+    int key_size = hash_key_size(key_type);
+    key_hashable.key = copy_data(key, key_type);
+    key_hashable.type = key_type;
+
+    hashvalue value_hashvalue;
+    int value_size = hash_value_size(value_type);
+    value_hashvalue.value = copy_data(value, value_type);
+    value_hashvalue.type = value_type;
+
+    hashitem item = {
+        .key = key_hashable,
+        .value = value_hashvalue,
+    };
+    return set_item_hashtable(ht, &key_hashable, &item);
+}
+
+
+
+int get_item_by_key(hashtable *ht, void * key, valuetype type, hashvalue *ret) {
+    hashable key_hashable = {
+        .key = key,
+        .type = type,
+    };
+    hashitem item;
+    int success = get_item_hashtable(ht, &key_hashable, &item);
+    if (success) *ret = item.value;
+    return success;
+}
+
+int copy_hashtable(hashtable *ret, hashtable *ht) {
+    ret->_cap = ht->_cap;
+    ret->_cap_idx = ht->_cap_idx;
+    ret->_size = ht->_size;
+    ret->_table = malloc(sizeof(vector) * ht->_cap);
+    for (int i=0; i<ht->_cap; ++i) {
+        vector *ret_chain = ret->_table + i,
+               *ht_chain = ht->_table + i;
+        
+        init_vector(ret_chain, sizeof(hashitem));
+        hashitem item, item_copy;
+        for (int j=0; j<size_vector(ht_chain); ++j) {
+            get_vector(ht_chain, j, (void *)&item);
+            item_copy.key.type = item.key.type;
+            item_copy.value.type = item.value.type;
+            item_copy.key.key = copy_data(item.key.key, item.key.type);
+            item_copy.value.value = copy_data(item.value.value, item.value.type);
+            push_back_vector(ret_chain, &item_copy);
+        }
+    }
+    return 0;
+}
 
 
 #undef true

@@ -54,28 +54,11 @@ int is_same_key_hashable(hashable *A, hashable *B);
 int get_item_hashtable(hashtable *ht, hashable *key, hashitem *ret);
 int set_item_hashtable(hashtable *ht, hashable *key, hashitem *item);
 
-int get_by_chars(hashtable *ht, const char *key, hashvalue *ret);
-int get_by_uint8(hashtable *ht, uint8_t key, hashvalue *ret);
-int get_by_int8(hashtable *ht, int8_t key, hashvalue *ret);
-int get_by_uint16(hashtable *ht, uint16_t key, hashvalue *ret);
-int get_by_int16(hashtable *ht, int16_t key, hashvalue *ret);
-int get_by_uint32(hashtable *ht, uint32_t key, hashvalue *ret);
-int get_by_int32(hashtable *ht, int32_t key, hashvalue *ret);
-int get_by_uint64(hashtable *ht, uint64_t key, hashvalue *ret);
-int get_by_int64(hashtable *ht, int64_t key, hashvalue *ret);
-int set_by_chars(hashtable *ht, const char *key, hashvalue *item);
-int set_by_uint8(hashtable *ht, uint8_t key, hashvalue *item);
-int set_by_int8(hashtable *ht, int8_t key, hashvalue *item);
-int set_by_uint16(hashtable *ht, uint16_t key, hashvalue *item);
-int set_by_int16(hashtable *ht, int16_t key, hashvalue *item);
-int set_by_uint32(hashtable *ht, uint32_t key, hashvalue *item);
-int set_by_int32(hashtable *ht, int32_t key, hashvalue *item);
-int set_by_uint64(hashtable *ht, uint64_t key, hashvalue *item);
-int set_by_int64(hashtable *ht, int64_t key, hashvalue *item);
-
-
-
+int set_item_by_key_value(hashtable *ht, void * key, valuetype key_type, void * value, valuetype value_type);
+int get_item_by_key(hashtable *ht, void * key, valuetype type, hashvalue *ret);
 
 int size_hashtable(hashtable *ht);
+int copy_hashtable(hashtable *ret, hashtable *ht);
+
 
 #endif
