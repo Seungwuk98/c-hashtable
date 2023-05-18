@@ -18,5 +18,5 @@ target_link_libraries(${HASH_TABLE_GET_ITEM_TEST} PUBLIC ${HASH_TABLE_LIBRARY})
 target_link_libraries(${JSON_PRINT_TEST} PUBLIC ${HASH_TABLE_LIBRARY})
 
 add_test(NAME ${HASH_TABLE_KEY_VALUE_SIZE_TEST} COMMAND HashTableKeyValueSizeTest)
-add_test(NAME ${HASH_TABLE_GET_ITEM_TEST} COMMAND HashTableKeyValueSizeTest)
+add_test(NAME ${HASH_TABLE_GET_ITEM_TEST} COMMAND HashTableGetItemTest)
 add_test(NAME ${JSON_PRINT_TEST} COMMAND JsonPrintTest)

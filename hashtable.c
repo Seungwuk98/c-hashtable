@@ -56,7 +56,7 @@ void init_hashtable(hashtable *ht) {
     ht->_size = 0;
     ht->_cap_idx = 0;
     ht->_cap = HASH_TABLE_SIZE[0];
-    ht->_table = malloc(sizeof(vector) * ht->_cap);
+    ht->_table = (vector *)malloc(sizeof(vector) * ht->_cap);
     for (int i=0; i<ht->_cap; ++i) {
         init_vector(ht->_table + i, sizeof(hashitem));
     }
@@ -282,7 +282,7 @@ void *copy_data(void *value, valuetype type) {
     return ret;
 }
 
-int set_item_by_key_value(hashtable *ht, void * key, valuetype key_type, void * value, valuetype value_type) {
+int set_item_by_key_value(hashtable *ht, void *key, valuetype key_type, void *value, valuetype value_type) {
     hashable key_hashable;
     int key_size = hash_key_size(key_type);
     key_hashable.key = copy_data(key, key_type);
@@ -302,7 +302,7 @@ int set_item_by_key_value(hashtable *ht, void * key, valuetype key_type, void * 
 
 
 
-int get_item_by_key(hashtable *ht, void * key, valuetype type, hashvalue *ret) {
+int get_item_by_key(hashtable *ht, void *key, valuetype type, hashvalue *ret) {
     hashable key_hashable = {
         .key = key,
         .type = type,

@@ -9,19 +9,18 @@ uint64_t hash_function(const void * key, int len, uint64_t seed) {
     uint64_t h = seed ^ (len * m);
 
     const uint64_t * data = (const uint64_t *) key;
-    const uint64_t * end = data + (len >> 3);
+    const uint64_t * end = data + (len / 8);
 
     while (data != end) {
         uint64_t k = *data++;
 
         k *= m;
         k ^= k >> r;
-        k * m;
+        k *= m;
 
         h ^= k;
         h *= m;
     } 
-
     const unsigned char * data2 = (const unsigned char *) data;
 
     switch (len & 7)
@@ -44,11 +43,15 @@ uint64_t hash_function(const void * key, int len, uint64_t seed) {
 }
 
 uint64_t int_hash(uint64_t key) {
-    return hash_function(&key, 64, 0);
+    return hash_function(&key, 8, 0);
 }
 
 uint64_t char_pointer_hash(const char * key) {
     int len = strlen(key);
+    long long h = 0;
+    for (int i=0; i<len; ++i) {
+        h += key[i];
+    }
     return hash_function(key, len, 0);
 }
 

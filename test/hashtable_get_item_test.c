@@ -1,5 +1,6 @@
 #include "hashtable.h"
 #include <assert.h>
+#include <stdio.h>
 
 int main() {
     hashtable _ht;
@@ -17,13 +18,14 @@ int main() {
     assert(*(int32_t *)value.value == b);
     /** Test1 */
 
-    // /** Test2 */
-    // const char * str = "my string";
-    // int k = 3;
-    // set_item_by_key_value(ht, (void *)&str, CHAR_POINTER, &k, INT32);
+    /** Test2 */
+    const char * str = "my string";
+    int k = 3;
+    set_item_by_key_value(ht, (void *)&str, CHAR_POINTER, &k, INT32);
     
-    // get_item_by_key(ht, (void *)&str, CHAR_POINTER, &value);
-    // assert(value.type == INT32);
+    get_item_by_key(ht, (void *)&str, CHAR_POINTER, &value);
+    assert(value.type == INT32);
+    printf("value.value : %d, k : %d\n", *(int32_t *)value.value, k);
     // assert(*(int32_t *)value.value == k);
 
     // const char * str2 = "my string";
@@ -37,7 +39,7 @@ int main() {
     // get_item_by_key(ht, (void *)&str2, CHAR_POINTER, &value);
     // assert(value.type == INT32);
     // assert(*(int32_t *)value.value == k);
-    // /** End Test2 */
+    /** End Test2 */
 
     close_hashtable(ht);
 }
