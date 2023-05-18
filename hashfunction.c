@@ -49,9 +49,12 @@ uint64_t int_hash(uint64_t key) {
 uint64_t char_pointer_hash(const char * key) {
     int len = strlen(key);
     long long h = 0;
+    const long long r = 1000000007;
     for (int i=0; i<len; ++i) {
+        h <<= 7;
+        h %= r;
         h += key[i];
     }
-    return hash_function(key, len, 0);
+    return int_hash((uint64_t) h);
 }
 
